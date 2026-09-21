@@ -20,10 +20,24 @@ VST3-синтезатор с ИИ-генерацией пресетов по з�
 synth/vital/             — исходники Vital (git submodule, GPLv3)
 ml/syntheon/             — вендоренный Syntheon с нашими фиксами (Apache 2.0)
 ml/poc_sound2preset.py   — сквозной PoC: WAV -> Syntheon -> .vital -> рендер Vita
-ml/output/               — результаты инференса (не в git)
+ml/text2preset/          — текст -> пресет: CLAP retrieval + CMA-ES
+  vital_random.py        — генератор осмысленных случайных пресетов
+  build_bank.py          — банк пресетов с CLAP-эмбеддингами
+  text2preset.py         — поиск по промпту (+ --optimize)
+ml/output/               — банк и результаты инференса (не в git)
 server/                  — локальный inference-сервер, отдающий .vital-пресеты плагину
 docs/                    — материалы курсовой
 ```
+
+## Использование text2preset
+
+```powershell
+.venv\Scripts\python ml/text2preset/build_bank.py --n 500        # один раз, ~2 мин
+.venv\Scripts\python ml/text2preset/text2preset.py "warm analog sub bass" --topk 5
+.venv\Scripts\python ml/text2preset/text2preset.py "dark evolving pad" --optimize
+```
+
+Результат — `.vital`-файлы и превью-WAV в `ml/output/query_<промпт>/`.
 
 ## Окружение
 
@@ -41,6 +55,6 @@ py -3.11 -m venv .venv
 
 - [x] Сквозной пайплайн звук → пресет → рендер работает (spectral loss ~0.11 на тестовом plucke)
 - [x] Исправления Syntheon: форма выхода torchcrepe (2D → 1D), обрезка аудио до вычисления признаков в `preprocessor.py`
-- [ ] Текст → пресет (CLAP retrieval + CMA-ES, метод CTAG)
+- [x] Текст → пресет: CLAP retrieval по банку из 500 случайных пресетов + CMA-ES-дооптимизация (sim 0.32 → 0.42 за 10 итераций на тестовом промпте)
 - [ ] Inference-сервер (FastAPI)
 - [ ] Сборка Vitalium (VST3) и панель загрузки пресетов из сервера
