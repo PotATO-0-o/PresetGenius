@@ -7,15 +7,11 @@ venv/
 .ipynb_checkpoints/
 
 # ML artifacts
-*.ckpt
-*.pt
-*.pth
-*.onnx
 wandb/
 runs/
 datasets/
-*.wav
-*.flac
+ml/output/
+build-constraints.txt
 
 # C++ / CMake / JUCE builds
 build/

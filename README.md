@@ -14,11 +14,33 @@ VST3-синтезатор с ИИ-генерацией пресетов по з�
 - **Headless-рендер** — [Vita](https://github.com/DBraun/Vita): Python-биндинги движка Vital для генерации датасета и оптимизации.
 - **Интеграция** — плагин общается с локальным Python-сервером модели (схема [Sound2Synth](https://github.com/Sound2Synth/Sound2Synth)); ML-часть работает вне реального времени.
 
-## Структура (планируемая)
+## Структура
 
 ```
-synth/    — форк Vitalium (C++/JUCE, VST3)
-ml/       — модели: audio2preset, text2preset, генерация датасета
-server/   — локальный inference-сервер, отдающий .vital-пресеты плагину
-docs/     — материалы курсовой
+synth/vital/             — исходники Vital (git submodule, GPLv3)
+ml/syntheon/             — вендоренный Syntheon с нашими фиксами (Apache 2.0)
+ml/poc_sound2preset.py   — сквозной PoC: WAV -> Syntheon -> .vital -> рендер Vita
+ml/output/               — результаты инференса (не в git)
+server/                  — локальный inference-сервер, отдающий .vital-пресеты плагину
+docs/                    — материалы курсовой
 ```
+
+## Окружение
+
+Python 3.11 (не 3.12+: зависимости Syntheon требуют старые setuptools):
+
+```powershell
+py -3.11 -m venv .venv
+.venv\Scripts\pip install "setuptools<81" wheel numpy
+.venv\Scripts\pip install crepe --no-build-isolation
+.venv\Scripts\pip install -r ml/syntheon/requirements.txt vita
+.venv\Scripts\python ml/poc_sound2preset.py   # сквозная проверка
+```
+
+## Статус
+
+- [x] Сквозной пайплайн звук → пресет → рендер работает (spectral loss ~0.11 на тестовом plucke)
+- [x] Исправления Syntheon: форма выхода torchcrepe (2D → 1D), обрезка аудио до вычисления признаков в `preprocessor.py`
+- [ ] Текст → пресет (CLAP retrieval + CMA-ES, метод CTAG)
+- [ ] Inference-сервер (FastAPI)
+- [ ] Сборка Vitalium (VST3) и панель загрузки пресетов из сервера
