@@ -22,6 +22,8 @@ cmake-build-*/
 *.exe
 *.dll
 *.vst3
+build_*.log
+dist/
 
 # IDE / OS
 .vscode/

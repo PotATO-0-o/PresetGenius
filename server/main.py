@@ -16,6 +16,7 @@ import tempfile
 
 import numpy as np
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -26,6 +27,28 @@ sys.path.insert(0, SYNTHEON_DIR)
 sys.path.insert(0, TEXT2PRESET_DIR)
 
 app = FastAPI(title="PresetGenius", version="0.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+def stamp_preset(preset, name: str, comments: str = ""):
+    if isinstance(preset, str):
+        preset = json.loads(preset)
+    preset["preset_name"] = name
+    preset["author"] = "PresetGenius"
+    if comments:
+        preset["comments"] = comments
+    return preset
+
+
+def short_name(text: str, fallback: str) -> str:
+    cleaned = "".join(ch if ch.isalnum() or ch in " -_" else " " for ch in text).strip()
+    cleaned = " ".join(cleaned.split())
+    return (cleaned[:48] if cleaned else fallback)
 
 _bank = None  # (embeddings, presets, meta) — лениво, чтобы старт был быстрым
 
@@ -64,7 +87,9 @@ async def audio2preset(file: UploadFile = File(...)):
         finally:
             os.chdir(cwd)
 
-    return JSONResponse({"preset": preset, "loss": eval_dict.get("loss")})
+    name = short_name(file.filename or "", "Audio Match")
+    preset = stamp_preset(preset, name, f"Matched from {file.filename}")
+    return JSONResponse({"preset": preset, "name": name, "loss": eval_dict.get("loss")})
 
 
 class TextRequest(BaseModel):
@@ -94,4 +119,6 @@ def text2preset_endpoint(req: TextRequest):
             synth, text_emb, meta, iterations=req.iters
         )
 
-    return JSONResponse({"preset": json.loads(preset_json), "similarity": sim})
+    name = short_name(req.prompt, "AI Preset")
+    preset = stamp_preset(preset_json, name, req.prompt)
+    return JSONResponse({"preset": preset, "name": name, "similarity": sim})

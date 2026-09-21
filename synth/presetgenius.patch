@@ -1,0 +1,302 @@
+﻿diff --git a/plugin/JuceLibraryCode/JucePluginDefines.h b/plugin/JuceLibraryCode/JucePluginDefines.h
+index 50b8e6e..ea50892 100644
+--- a/plugin/JuceLibraryCode/JucePluginDefines.h
++++ b/plugin/JuceLibraryCode/JucePluginDefines.h
+@@ -38,13 +38,13 @@
+  #define JucePlugin_Enable_IAA             1
+ #endif
+ #ifndef  JucePlugin_Name
+- #define JucePlugin_Name                   "Vial"
++ #define JucePlugin_Name                   "PresetGenius"
+ #endif
+ #ifndef  JucePlugin_Desc
+- #define JucePlugin_Desc                   ""
++ #define JucePlugin_Desc                   "AI preset generation synth"
+ #endif
+ #ifndef  JucePlugin_Manufacturer
+- #define JucePlugin_Manufacturer           "Vial Audio"
++ #define JucePlugin_Manufacturer           "PresetGenius"
+ #endif
+ #ifndef  JucePlugin_ManufacturerWebsite
+  #define JucePlugin_ManufacturerWebsite    "vial.audio"
+diff --git a/plugin/builds/vs17/Vial_VST3.vcxproj b/plugin/builds/vs17/Vial_VST3.vcxproj
+index c938ba9..e125abc 100644
+--- a/plugin/builds/vs17/Vial_VST3.vcxproj
++++ b/plugin/builds/vs17/Vial_VST3.vcxproj
+@@ -68,7 +68,7 @@
+       <Optimization>Disabled</Optimization>
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <AdditionalIncludeDirectories>..\..\..\third_party\JUCE\modules\juce_audio_processors\format_types\VST3_SDK;..\..\..\third_party\VST_SDK\VST2_SDK;..\..\JuceLibraryCode;..\..\..\third_party\JUCE\modules;../../../src/common;../../../src/common/wavetable;../../../src/interface/editor_components;../../../src/interface/editor_sections;../../../src/interface/look_and_feel;../../../src/interface/wavetable;../../../src/interface/wavetable/editors;../../../src/interface/wavetable/overlays;../../../src/plugin;../../../src/synthesis/synth_engine;../../../src/synthesis/effects;../../../src/synthesis/filters;../../../src/synthesis/framework;../../../src/synthesis/lookups;../../../src/synthesis/modulators;../../../src/synthesis/modules;../../../src/synthesis/producers;../../../src/synthesis/utilities;../../../third_party;../../../third_party/firebase_cpp_sdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;JUCE_OPENGL3=1;REQUIRE_AUTH=1;WINVER=0x0601;_WIN32_WINNT=0x0601;_ENABLE_EXTENDED_ALIGNED_STORAGE;INTEL_IPP=1;__SSE2__=1;JUCER_VS2017_B927B5AD=1;JUCE_APP_VERSION=1.0.6;JUCE_APP_VERSION_HEX=0x10006;JucePlugin_Build_VST=0;JucePlugin_Build_VST3=1;JucePlugin_Build_AU=0;JucePlugin_Build_AUv3=0;JucePlugin_Build_RTAS=0;JucePlugin_Build_AAX=0;JucePlugin_Build_Standalone=0;JucePlugin_Build_Unity=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;JUCE_OPENGL3=1;REQUIRE_AUTH=0;NO_AUTH=1;WINVER=0x0601;_WIN32_WINNT=0x0601;_ENABLE_EXTENDED_ALIGNED_STORAGE;INTEL_IPP=0;__SSE2__=1;JUCER_VS2017_B927B5AD=1;JUCE_APP_VERSION=1.0.6;JUCE_APP_VERSION_HEX=0x10006;JucePlugin_Build_VST=0;JucePlugin_Build_VST3=1;JucePlugin_Build_AU=0;JucePlugin_Build_AUv3=0;JucePlugin_Build_RTAS=0;JucePlugin_Build_AAX=0;JucePlugin_Build_Standalone=0;JucePlugin_Build_Unity=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+@@ -104,7 +104,7 @@
+       <AdditionalLibraryDirectories>../../../third_party/firebase_cpp_sdk/libs/windows/x64/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+     <PostBuildEvent>
+-      <Command>copy /Y &quot;$(OutDir)$(TargetFileName)&quot; &quot;%CommonProgramW6432%\VST3\$(TargetFileName)&quot;</Command>
++      <Command>mkdir "%LOCALAPPDATA%\Programs\Common\VST3" 2&gt;nul &amp; copy /Y "$(OutDir)$(TargetFileName)" "%LOCALAPPDATA%\Programs\Common\VST3\PresetGenius.vst3"</Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+@@ -118,7 +118,7 @@
+     <ClCompile>
+       <Optimization>MaxSpeed</Optimization>
+       <AdditionalIncludeDirectories>..\..\..\third_party\JUCE\modules\juce_audio_processors\format_types\VST3_SDK;..\..\..\third_party\VST_SDK\VST2_SDK;..\..\JuceLibraryCode;..\..\..\third_party\JUCE\modules;../../../src/common;../../../src/common/wavetable;../../../src/interface/editor_components;../../../src/interface/editor_sections;../../../src/interface/look_and_feel;../../../src/interface/wavetable;../../../src/interface/wavetable/editors;../../../src/interface/wavetable/overlays;../../../src/plugin;../../../src/synthesis/synth_engine;../../../src/synthesis/effects;../../../src/synthesis/filters;../../../src/synthesis/framework;../../../src/synthesis/lookups;../../../src/synthesis/modulators;../../../src/synthesis/modules;../../../src/synthesis/producers;../../../src/synthesis/utilities;../../../third_party;../../../third_party/firebase_cpp_sdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;JUCE_OPENGL3=1;REQUIRE_AUTH=1;WINVER=0x0601;_WIN32_WINNT=0x0601;_ENABLE_EXTENDED_ALIGNED_STORAGE;INTEL_IPP=1;__SSE2__=1;JUCER_VS2017_B927B5AD=1;JUCE_APP_VERSION=1.0.6;JUCE_APP_VERSION_HEX=0x10006;JucePlugin_Build_VST=0;JucePlugin_Build_VST3=1;JucePlugin_Build_AU=0;JucePlugin_Build_AUv3=0;JucePlugin_Build_RTAS=0;JucePlugin_Build_AAX=0;JucePlugin_Build_Standalone=0;JucePlugin_Build_Unity=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;JUCE_OPENGL3=1;REQUIRE_AUTH=0;NO_AUTH=1;WINVER=0x0601;_WIN32_WINNT=0x0601;_ENABLE_EXTENDED_ALIGNED_STORAGE;INTEL_IPP=0;__SSE2__=1;JUCER_VS2017_B927B5AD=1;JUCE_APP_VERSION=1.0.6;JUCE_APP_VERSION_HEX=0x10006;JucePlugin_Build_VST=0;JucePlugin_Build_VST3=1;JucePlugin_Build_AU=0;JucePlugin_Build_AUv3=0;JucePlugin_Build_RTAS=0;JucePlugin_Build_AAX=0;JucePlugin_Build_Standalone=0;JucePlugin_Build_Unity=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+@@ -157,7 +157,7 @@
+       <AdditionalLibraryDirectories>../../../third_party/firebase_cpp_sdk/libs/windows/x64/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+     <PostBuildEvent>
+-      <Command>copy /Y &quot;$(OutDir)$(TargetFileName)&quot; &quot;%CommonProgramW6432%\VST3\$(TargetFileName)&quot;</Command>
++      <Command>mkdir "%LOCALAPPDATA%\Programs\Common\VST3" 2&gt;nul &amp; copy /Y "$(OutDir)$(TargetFileName)" "%LOCALAPPDATA%\Programs\Common\VST3\PresetGenius.vst3"</Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+   <ItemGroup>
+diff --git a/src/interface/editor_components/synth_preset_selector.cpp b/src/interface/editor_components/synth_preset_selector.cpp
+index 64da1d5..8cf7a2a 100644
+--- a/src/interface/editor_components/synth_preset_selector.cpp
++++ b/src/interface/editor_components/synth_preset_selector.cpp
+@@ -26,6 +26,8 @@
+ #include "synth_gui_interface.h"
+ #include "tuning.h"
+ 
++#include <thread>
++
+ namespace {
+   void menuCallback(int result, SynthPresetSelector* preset_selector) {
+     if (preset_selector == nullptr)
+@@ -58,6 +60,12 @@ namespace {
+       preset_selector->signOut();
+     else if (result == SynthPresetSelector::kLogIn)
+       preset_selector->signIn();
++    else if (result == SynthPresetSelector::kAiTextPreset)
++      preset_selector->aiPresetFromText(false);
++    else if (result == SynthPresetSelector::kAiTextOptimizePreset)
++      preset_selector->aiPresetFromText(true);
++    else if (result == SynthPresetSelector::kAiAudioPreset)
++      preset_selector->aiPresetFromAudio();
+   }
+ 
+   String redactEmail(const String& email) {
+@@ -94,8 +102,14 @@ SynthPresetSelector::SynthPresetSelector() : SynthSection("preset_selector"), ba
+   addAndMakeVisible(save_button_.get());
+   addOpenGlComponent(save_button_->getGlComponent());
+   save_button_->addListener(this);
+-
+   save_button_->setShape(Paths::save());
++
++  ai_button_ = std::make_unique<OpenGlShapeButton>("AI");
++  addAndMakeVisible(ai_button_.get());
++  addOpenGlComponent(ai_button_->getGlComponent());
++  ai_button_->addListener(this);
++  ai_button_->setTriggeredOnMouseDown(true);
++  ai_button_->setShape(Paths::star());
+ }
+ 
+ SynthPresetSelector::~SynthPresetSelector() {
+@@ -108,7 +122,9 @@ void SynthPresetSelector::resized() {
+   int height = getHeight();
+   selector_->setRoundAmount(height / 2.0f);
+   int padding = kSelectorButtonPaddingHeightPercent * height;
+-  selector_->setBounds(0, 0, getWidth() - 2 * height - padding, height);
++  selector_->setBounds(0, 0, getWidth() - 3 * height - padding, height);
++  ai_button_->setBounds(getWidth() - 3 * height, 0, height, height);
++  ai_button_->setShape(Paths::star());
+   save_button_->setBounds(getWidth() - 2 * height, 0, height, height);
+   save_button_->setShape(Paths::save(height));
+   menu_button_->setBounds(getWidth() - height, 0, height, height);
+@@ -119,6 +135,15 @@ void SynthPresetSelector::resized() {
+   Component::resized();
+ }
+ 
++void SynthPresetSelector::showAiPopupMenu(Component* anchor) {
++  PopupItems options;
++  options.addItem(kAiTextPreset, "Generate from text");
++  options.addItem(kAiTextOptimizePreset, "Generate from text (optimized)");
++  options.addItem(kAiAudioPreset, "Match audio file");
++  showPopupSelector(this, Point<int>(anchor->getX(), anchor->getBottom()), options,
++                    [=](int selection) { menuCallback(selection, this); });
++}
++
+ void SynthPresetSelector::buttonClicked(Button* clicked_button) {
+   if (clicked_button == menu_button_.get()) {
+     if (ModifierKeys::getCurrentModifiersRealtime().isAltDown())
+@@ -128,6 +153,8 @@ void SynthPresetSelector::buttonClicked(Button* clicked_button) {
+   }
+   else if (clicked_button == save_button_.get())
+     savePreset();
++  else if (clicked_button == ai_button_.get())
++    showAiPopupMenu(ai_button_.get());
+ }
+ 
+ void SynthPresetSelector::newPresetSelected(File preset) {
+@@ -200,6 +227,10 @@ void SynthPresetSelector::showPopupMenu(Component* anchor) {
+   options.addItem(kImportBank, "Import Bank");
+   options.addItem(kExportBank, "Export Bank");
+   options.addItem(-1, "");
++  options.addItem(kAiTextPreset, "AI: Preset From Text");
++  options.addItem(kAiTextOptimizePreset, "AI: Preset From Text (Optimized)");
++  options.addItem(kAiAudioPreset, "AI: Match Audio File");
++  options.addItem(-1, "");
+   options.addItem(kInitPreset, "Initialize Preset");
+   options.addItem(-1, "");
+   options.addItem(kLoadTuning, "Load Tuning File");
+@@ -300,6 +331,115 @@ void SynthPresetSelector::importPreset() {
+     parent->externalPresetLoaded(choice);
+ }
+ 
++namespace {
++  const char* kAiServerHost = "http://127.0.0.1:8901";
++  constexpr int kAiTimeoutMs = 120000;
++}
++
++void SynthPresetSelector::aiPresetFromText(bool optimize) {
++  String hint = optimize
++      ? "Describe the sound. Optimized mode is slower but closer to the prompt."
++      : "Describe the sound, e.g. warm analog sub bass";
++  AlertWindow prompt_window("PresetGenius", hint, AlertWindow::NoIcon);
++  prompt_window.addTextEditor("prompt", "", "");
++  prompt_window.addButton("Generate", 1, KeyPress(KeyPress::returnKey));
++  prompt_window.addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));
++  if (prompt_window.runModalLoop() != 1)
++    return;
++
++  String prompt = prompt_window.getTextEditorContents("prompt").trim();
++  if (prompt.isEmpty())
++    return;
++
++  json body;
++  body["prompt"] = prompt.toStdString();
++  body["optimize"] = optimize;
++  body["iters"] = 8;
++
++  URL url = URL(String(kAiServerHost) + "/text2preset").withPOSTData(body.dump());
++  startAiRequest(url, "application/json");
++}
++
++void SynthPresetSelector::aiPresetFromAudio() {
++  FileChooser open_box("Select Audio To Match", File(),
++                       "*.wav;*.mp3;*.flac;*.ogg;*.aif;*.aiff");
++  if (!open_box.browseForFileToOpen())
++    return;
++
++  File audio_file = open_box.getResult();
++  if (!audio_file.exists())
++    return;
++
++  URL url = URL(String(kAiServerHost) + "/audio2preset")
++                .withFileToUpload("file", audio_file, "audio/wav");
++  startAiRequest(url, "");
++}
++
++void SynthPresetSelector::startAiRequest(URL url, String content_type) {
++  selector_->setText("Generating AI preset...");
++
++  Component::SafePointer<SynthPresetSelector> safe_this(this);
++  std::thread([safe_this, url, content_type]() {
++    String headers;
++    if (content_type.isNotEmpty())
++      headers = "Content-Type: " + content_type + "\r\n";
++
++    int status_code = 0;
++    std::unique_ptr<InputStream> stream =
++        url.createInputStream(true, nullptr, nullptr, headers, kAiTimeoutMs, nullptr, &status_code);
++    String response = stream ? stream->readEntireStreamAsString() : String();
++
++    MessageManager::callAsync([safe_this, response, status_code]() mutable {
++      if (safe_this.getComponent() != nullptr)
++        safe_this->finishAiRequest(response, status_code);
++    });
++  }).detach();
++}
++
++void SynthPresetSelector::finishAiRequest(String response, int status_code) {
++  resetText();
++  if (status_code != 200 || response.isEmpty()) {
++    String details = response.substring(0, 240);
++    AlertWindow::showNativeDialogBox(
++        "PresetGenius",
++        "AI server did not answer (HTTP " + String(status_code) + ").\n"
++        "Start Start-PresetGenius.bat first, then try again.\n" + details,
++        false);
++    return;
++  }
++
++  try {
++    json parsed = json::parse(response.toStdString());
++    json preset = parsed["preset"];
++    String display_name = "AI Preset";
++    if (parsed.count("name") && parsed["name"].is_string())
++      display_name = parsed["name"].get<std::string>();
++    display_name = File::createLegalFileName(display_name);
++    if (display_name.isEmpty())
++      display_name = "AI Preset";
++
++    File temp_file = File::getSpecialLocation(File::tempDirectory)
++                         .getChildFile(display_name + ".vital");
++    temp_file.replaceWithText(preset.dump());
++
++    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
++    std::string error;
++    if (!parent->getSynth()->loadFromFile(temp_file, error)) {
++      AlertWindow::showNativeDialogBox("PresetGenius",
++                                       "Error loading generated preset. " + error, false);
++    }
++    else {
++      parent->getSynth()->setPresetName(display_name);
++      parent->externalPresetLoaded(temp_file);
++      resetText();
++    }
++  }
++  catch (const std::exception& e) {
++    AlertWindow::showNativeDialogBox("PresetGenius",
++                                     std::string("Bad server response: ") + e.what(), false);
++  }
++}
++
+ void SynthPresetSelector::exportPreset() {
+   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+   if (parent == nullptr)
+diff --git a/src/interface/editor_components/synth_preset_selector.h b/src/interface/editor_components/synth_preset_selector.h
+index d5c9863..3f10531 100644
+--- a/src/interface/editor_components/synth_preset_selector.h
++++ b/src/interface/editor_components/synth_preset_selector.h
+@@ -52,6 +52,9 @@ class SynthPresetSelector : public SynthSection,
+       kClearSkin,
+       kLogOut,
+       kLogIn,
++      kAiTextPreset,
++      kAiTextOptimizePreset,
++      kAiAudioPreset,
+       kNumMenuItems
+     };
+ 
+@@ -72,6 +75,13 @@ class SynthPresetSelector : public SynthSection,
+     void textMouseUp(const MouseEvent& e) override;
+ 
+     void showPopupMenu(Component* anchor);
++    void showAiPopupMenu(Component* anchor);
++
++    // PresetGenius: ╨│╨╡╨╜╨╡╤А╨░╤Ж╨╕╤П ╨┐╤А╨╡╤Б╨╡╤В╨░ ╤З╨╡╤А╨╡╨╖ ╨╗╨╛╨║╨░╨╗╤М╨╜╤Л╨╣ AI-╤Б╨╡╤А╨▓╨╡╤А
++    void aiPresetFromText(bool optimize);
++    void aiPresetFromAudio();
++    void startAiRequest(URL url, String content_type);
++    void finishAiRequest(String response, int status_code);
+     void showAlternatePopupMenu(Component* anchor);
+ 
+     void setModified(bool modified);
+@@ -124,6 +134,7 @@ class SynthPresetSelector : public SynthSection,
+     std::unique_ptr<PresetSelector> selector_;
+     std::unique_ptr<OpenGlShapeButton> menu_button_;
+     std::unique_ptr<OpenGlShapeButton> save_button_;
++    std::unique_ptr<OpenGlShapeButton> ai_button_;
+     BankExporter* bank_exporter_;
+     PresetBrowser* browser_;
+     SaveSection* save_section_;

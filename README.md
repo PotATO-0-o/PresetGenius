@@ -2,59 +2,69 @@
 
 VST3-синтезатор с ИИ-генерацией пресетов по загружаемому звуку или текстовому описанию (в духе Synplant 2 / Genopatch). Курсовой проект.
 
-## Идея
+## Запуск в Ableton
 
-Пользователь загружает аудиофайл **или** вводит текстовое описание звука — система генерирует пресет для синтезатора, который остаётся только загрузить.
+1. Дважды кликните `Start-PresetGenius.bat`.
+2. Дождитесь окна **PresetGenius Server** и открытия standalone-синта.
+3. В Ableton: **Preferences → Plug-Ins**
+   - включите **Use VST3 Plug-In System Folders**
+   - или добавьте папку `%LOCALAPPDATA%\Programs\Common\VST3`
+   - на этой машине плагин также лежит в `D:\Plug-in's\PresetGenius.vst3`
+   - нажмите **Rescan**
+4. В браузере инструментов найдите **PresetGenius**, перетащите на MIDI-трек.
+5. Нажмите **звезду** справа от имени пресета:
+   - **Generate from text** — описание звука
+   - **Generate from text (optimized)** — то же + CMA-ES, медленнее
+   - **Match audio file** — WAV/MP3
+6. Играйте MIDI. Окно сервера не закрывайте.
+
+Первый запрос после старта сервера может занять 15–40 секунд (загрузка CLAP).
 
 ## Архитектура
 
-- **Синтезатор** — форк [Vitalium](https://github.com/DISTRHO/DISTRHO-Ports) (редистрибутируемая сборка open-source синта [Vital](https://github.com/mtytel/vital), GPLv3). Пресет — JSON-файл (`.vital`).
-- **Звук → пресет** — [Syntheon](https://github.com/gudgud96/syntheon): инференс параметров Vital по аудио.
-- **Текст → пресет** — CLAP text-embedding + retrieval по банку пресетов + CMA-ES-дооптимизация (метод [CTAG](https://github.com/PapayaResearch/ctag), ICML 2024).
-- **Headless-рендер** — [Vita](https://github.com/DBraun/Vita): Python-биндинги движка Vital для генерации датасета и оптимизации.
-- **Интеграция** — плагин общается с локальным Python-сервером модели (схема [Sound2Synth](https://github.com/Sound2Synth/Sound2Synth)); ML-часть работает вне реального времени.
+- **Синтезатор** — форк [Vital](https://github.com/mtytel/vital) (GPLv3), собран как **PresetGenius** VST3/Standalone. Пресет — JSON (`.vital`).
+- **Звук → пресет** — [Syntheon](https://github.com/gudgud96/syntheon).
+- **Текст → пресет** — CLAP retrieval по банку + CMA-ES (метод [CTAG](https://github.com/PapayaResearch/ctag)).
+- **Headless-рендер** — [Vita](https://github.com/DBraun/Vita).
+- **Плагин → сервер** — HTTP `127.0.0.1:8901` (`/text2preset`, `/audio2preset`).
 
 ## Структура
 
 ```
-synth/vital/             — исходники Vital (git submodule, GPLv3)
-ml/syntheon/             — вендоренный Syntheon с нашими фиксами (Apache 2.0)
-ml/poc_sound2preset.py   — сквозной PoC: WAV -> Syntheon -> .vital -> рендер Vita
-ml/text2preset/          — текст -> пресет: CLAP retrieval + CMA-ES
-  vital_random.py        — генератор осмысленных случайных пресетов
-  build_bank.py          — банк пресетов с CLAP-эмбеддингами
-  text2preset.py         — поиск по промпту (+ --optimize)
-ml/output/               — банк и результаты инференса (не в git)
-server/                  — локальный inference-сервер, отдающий .vital-пресеты плагину
-docs/                    — материалы курсовой
+Start-PresetGenius.bat   — запуск сервера + установка VST3 + standalone
+dist/VST3/               — копия PresetGenius.vst3
+synth/vital/             — исходники синта (git submodule)
+ml/syntheon/             — вендоренный Syntheon
+ml/text2preset/          — текст → пресет
+server/                  — FastAPI inference-сервер
 ```
 
-## Использование text2preset
+## Сборка плагина (если меняли C++)
+
+Visual Studio 2022 Build Tools, конфигурация `Release|x64`:
 
 ```powershell
-.venv\Scripts\python ml/text2preset/build_bank.py --n 500        # один раз, ~2 мин
-.venv\Scripts\python ml/text2preset/text2preset.py "warm analog sub bass" --topk 5
-.venv\Scripts\python ml/text2preset/text2preset.py "dark evolving pad" --optimize
+& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" `
+  synth\vital\plugin\builds\vs17\Vial.sln /p:Configuration=Release /p:Platform=x64 `
+  /t:Vial_SharedCode,Vial_VST3,Vial_StandalonePlugin /m
 ```
 
-Результат — `.vital`-файлы и превью-WAV в `ml/output/query_<промпт>/`.
+## Окружение Python
 
-## Окружение
-
-Python 3.11 (не 3.12+: зависимости Syntheon требуют старые setuptools):
+Нужен Python 3.11:
 
 ```powershell
 py -3.11 -m venv .venv
 .venv\Scripts\pip install "setuptools<81" wheel numpy
 .venv\Scripts\pip install crepe --no-build-isolation
-.venv\Scripts\pip install -r ml/syntheon/requirements.txt vita
-.venv\Scripts\python ml/poc_sound2preset.py   # сквозная проверка
+.venv\Scripts\pip install -r ml/syntheon/requirements.txt vita transformers cma soxr fastapi uvicorn python-multipart
+.venv\Scripts\python ml/text2preset/build_bank.py --n 500
 ```
 
 ## Статус
 
-- [x] Сквозной пайплайн звук → пресет → рендер работает (spectral loss ~0.11 на тестовом plucke)
-- [x] Исправления Syntheon: форма выхода torchcrepe (2D → 1D), обрезка аудио до вычисления признаков в `preprocessor.py`
-- [x] Текст → пресет: CLAP retrieval по банку из 500 случайных пресетов + CMA-ES-дооптимизация (sim 0.32 → 0.42 за 10 итераций на тестовом промпте)
-- [ ] Inference-сервер (FastAPI)
-- [ ] Сборка Vitalium (VST3) и панель загрузки пресетов из сервера
+- [x] Звук → пресет → рендер
+- [x] Текст → пресет (CLAP + CMA-ES)
+- [x] Inference-сервер FastAPI
+- [x] VST3 / Standalone PresetGenius с кнопкой AI
+- [x] Установка в системную папку VST3 и launcher для Ableton
