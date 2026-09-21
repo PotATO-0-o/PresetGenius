@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.ipynb_checkpoints/
+
+# ML artifacts
+*.ckpt
+*.pt
+*.pth
+*.onnx
+wandb/
+runs/
+datasets/
+*.wav
+*.flac
+
+# C++ / CMake / JUCE builds
+build/
+Builds/
+cmake-build-*/
+*.o
+*.obj
+*.exe
+*.dll
+*.vst3
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
