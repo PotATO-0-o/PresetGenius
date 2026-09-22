@@ -1,67 +1,40 @@
 # PresetGenius
 
-VST3-синтезатор с ИИ-генерацией пресетов по загружаемому звуку или текстовому описанию (в духе Synplant 2 / Genopatch). Курсовой проект.
+Синтезатор для Windows: пресет собирается по текстовому описанию или по загруженному звуку. Форматы — **Standalone** и **VST3** (Ableton Live и другие DAW).
 
-## Установщик
+[Скачать установщик](https://github.com/PotATO-0-o/PresetGenius/raw/main/installer/output/PresetGenius-Setup-1.0.0.exe) · [Релиз](https://github.com/PotATO-0-o/PresetGenius/releases/tag/v1.0.0)
 
-Готовый файл: [installer/output/PresetGenius-Setup-1.0.0.exe](installer/output/PresetGenius-Setup-1.0.0.exe) (около 16 МБ).
-Пересобрать: `installer\build.ps1`.
+## Установка
 
-При установке можно выбрать **Standalone**, **VST3** или оба варианта. Сервер ИИ ставится всегда.
-Python 3.11 и библиотеки ИИ (около 2 ГБ) скачиваются при установке, если отметить этот шаг. Нужен интернет.
+Запустите `PresetGenius-Setup-1.0.0.exe` и выберите, что ставить:
 
-## Запуск в Ableton
+| Вариант | Что появляется |
+| --- | --- |
+| Standalone и VST3 | программа и плагин |
+| Только Standalone | `PresetGenius.exe` |
+| Только VST3 | плагин для DAW |
 
-1. Дважды кликните `Start-PresetGenius.bat`.
-2. Дождитесь окна **PresetGenius Server** и открытия standalone-синта.
-3. В Ableton: **Preferences → Plug-Ins**
-   - включите **Use VST3 Plug-In System Folders**
-   - или добавьте папку `%LOCALAPPDATA%\Programs\Common\VST3`
-   - на этой машине плагин также лежит в `D:\Plug-in's\PresetGenius.vst3`
-   - нажмите **Rescan**
-4. В браузере инструментов найдите **PresetGenius**, перетащите на MIDI-трек.
-5. Нажмите **звезду** справа от имени пресета:
-   - **Generate from text** — описание звука
-   - **Generate from text (optimized)** — то же + CMA-ES, медленнее
-   - **Match audio file** — WAV/MP3
-6. Играйте MIDI. Окно сервера не закрывайте.
+Нужны права администратора: VST3 кладётся в `C:\Program Files\Common Files\VST3`. Сервер, который считает пресет, ставится вместе с программой. Библиотеки для него (около 2 ГБ) скачиваются в конце установки, если оставить эту галочку. Без интернета этот шаг можно пропустить и запустить `Setup-AI.cmd` позже.
 
-Первый запрос после старта сервера может занять 15–40 секунд (загрузка CLAP).
+## Как пользоваться
 
-## Архитектура
+1. Откройте **PresetGenius** из меню Пуск. Сервер запустится сам. Если стоит только VST3, сначала откройте **PresetGenius AI Server**.
+2. В Ableton: **Preferences → Plug-Ins → Rescan**, затем инструмент **PresetGenius** на MIDI-трек.
+3. Справа от имени пресета нажмите звезду:
+   - **Generate from text** — описание, например `warm analog sub bass`
+   - **Generate from text (optimized)** — дольше, ближе к описанию
+   - **Match audio file** — WAV, MP3, FLAC
+4. Играйте ноты. Окно сервера не закрывайте.
 
-- **Синтезатор** — форк [Vital](https://github.com/mtytel/vital) (GPLv3), собран как **PresetGenius** VST3/Standalone. Пресет — JSON (`.vital`).
-- **Звук → пресет** — [Syntheon](https://github.com/gudgud96/syntheon).
-- **Текст → пресет** — CLAP retrieval по банку + CMA-ES (метод [CTAG](https://github.com/PapayaResearch/ctag)).
-- **Headless-рендер** — [Vita](https://github.com/DBraun/Vita).
-- **Плагин → сервер** — HTTP `127.0.0.1:8901` (`/text2preset`, `/audio2preset`).
+Первый запрос после старта может занять до минуты. Волновые таблицы лежат в `Документы\Vial\Wavetables`.
 
-## Структура
+## Сборка из исходников
 
-```
-Start-PresetGenius.bat   — запуск сервера + установка VST3 + standalone
-dist/VST3/               — копия PresetGenius.vst3
-synth/vital/             — исходники синта (git submodule)
-ml/syntheon/             — вендоренный Syntheon
-ml/text2preset/          — текст → пресет
-server/                  — FastAPI inference-сервер
-```
-
-## Сборка плагина (если меняли C++)
-
-Visual Studio 2022 Build Tools, конфигурация `Release|x64`:
+Нужны Visual Studio 2022 Build Tools, Python 3.11 и [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 
 ```powershell
-& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" `
-  synth\vital\plugin\builds\vs17\Vial.sln /p:Configuration=Release /p:Platform=x64 `
-  /t:Vial_SharedCode,Vial_VST3,Vial_StandalonePlugin /m
-```
-
-## Окружение Python
-
-Нужен Python 3.11:
-
-```powershell
+git clone --recurse-submodules https://github.com/PotATO-0-o/PresetGenius.git
+cd PresetGenius
 py -3.11 -m venv .venv
 .venv\Scripts\pip install "setuptools<81" wheel numpy
 .venv\Scripts\pip install crepe --no-build-isolation
@@ -69,10 +42,34 @@ py -3.11 -m venv .venv
 .venv\Scripts\python ml/text2preset/build_bank.py --n 500
 ```
 
-## Статус
+Плагин:
 
-- [x] Звук → пресет → рендер
-- [x] Текст → пресет (CLAP + CMA-ES)
-- [x] Inference-сервер FastAPI
-- [x] VST3 / Standalone PresetGenius с кнопкой AI
-- [x] Установка в системную папку VST3 и launcher для Ableton
+```powershell
+& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" `
+  synth\vital\plugin\builds\vs17\Vial.sln /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 `
+  /t:"Vial - Shared Code;Vial - VST3;Vial - Standalone Plugin" /m
+installer\build.ps1
+```
+
+Правки движка относительно [Vital](https://github.com/mtytel/vital) лежат в `synth/presetgenius.patch`.
+
+## Из чего состоит
+
+| Часть | Основа |
+| --- | --- |
+| Движок и интерфейс | [Vital](https://github.com/mtytel/vital), GPL-3.0 |
+| Звук → пресет | [Syntheon](https://github.com/gudgud96/syntheon), Apache-2.0 |
+| Текст → пресет | поиск по банку через [CLAP](https://github.com/LAION-AI/CLAP) и донастройка CMA-ES |
+| Проверка пресета без DAW | [Vita](https://github.com/DBraun/Vita) |
+
+```
+installer/     установщик
+server/        локальный сервер пресетов, порт 8901
+ml/text2preset текст → пресет
+ml/syntheon    звук → пресет
+synth/vital    исходники синтезатора
+```
+
+## Лицензия
+
+Движок — GPL-3.0, поэтому сборка PresetGenius распространяется на тех же условиях. Текст лицензии: `synth/vital/LICENSE`. Syntheon — Apache-2.0, файл `ml/syntheon/LICENSE`.
