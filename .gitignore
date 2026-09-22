@@ -25,10 +25,11 @@ cmake-build-*/
 build_*.log
 dist/
 
-# Installer build output
+# Installer build output. The setup exe is tracked so the public repo can offer it.
 installer/cache/
 installer/staging/
-installer/output/
+installer/output/*
+!installer/output/PresetGenius-Setup-1.0.0.exe
 
 # IDE / OS
 .vscode/

@@ -20,7 +20,7 @@ DisableProgramGroupPage=yes
 OutputDir=output
 OutputBaseFilename=PresetGenius-Setup-{#Version}
 SetupLogging=yes
-Compression=lzma2
+Compression=lzma2/ultra
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
@@ -59,8 +59,7 @@ Source: "{#Stage}\Start-Server.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\server\*"; DestDir: "{app}\server"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Stage}\ml\*"; DestDir: "{app}\ml"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Stage}\licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion
-Source: "{#Redist}\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "{#Stage}\redist\python-3.11.9-amd64.exe"; DestDir: "{app}\redist"; Flags: ignoreversion
+Source: "{#Stage}\Check-Runtime.cmd"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\PresetGenius"; Filename: "{app}\Start-PresetGenius.cmd"; WorkingDir: "{app}"; Comment: "{cm:ShortcutStandalone}"; Components: standalone; IconFilename: "{app}\PresetGenius.exe"
@@ -69,7 +68,7 @@ Name: "{group}\Setup AI"; Filename: "{app}\Setup-AI.cmd"; WorkingDir: "{app}"
 Name: "{autodesktop}\PresetGenius"; Filename: "{app}\Start-PresetGenius.cmd"; WorkingDir: "{app}"; Components: standalone; Tasks: desktopicon; IconFilename: "{app}\PresetGenius.exe"
 
 [Run]
-Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "{cm:VcRedist}"; Flags: waituntilterminated
+Filename: "{app}\Check-Runtime.cmd"; StatusMsg: "{cm:VcRedist}"; Flags: waituntilterminated
 Filename: "{app}\Setup-AI.cmd"; Description: "{cm:RunSetupAi}"; Tasks: setupai; Flags: postinstall waituntilterminated
 Filename: "{app}\Start-PresetGenius.cmd"; Description: "{cm:RunApp}"; Components: standalone; Flags: postinstall nowait skipifsilent
 Filename: "{app}\Start-Server.cmd"; Description: "{cm:RunServer}"; Components: vst3; Flags: postinstall nowait skipifsilent unchecked

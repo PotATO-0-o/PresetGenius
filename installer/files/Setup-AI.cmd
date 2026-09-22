@@ -19,9 +19,11 @@ if not defined PY if exist "%LocalAppData%\Programs\Python\Python311\python.exe"
 if not defined PY if exist "%ProgramFiles%\Python311\python.exe" set "PY=%ProgramFiles%\Python311\python.exe"
 
 if not defined PY (
-  echo Python 3.11 не найден. Устанавливаю его...
-  if not exist "%~dp0redist\python-3.11.9-amd64.exe" (
-    echo Не найден redist\python-3.11.9-amd64.exe
+  echo Python 3.11 не найден. Скачиваю установщик...
+  if not exist "%~dp0redist" mkdir "%~dp0redist"
+  curl.exe -L --fail -o "%~dp0redist\python-3.11.9-amd64.exe" "https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe"
+  if errorlevel 1 (
+    echo Не удалось скачать Python 3.11. Проверьте интернет.
     exit /b 1
   )
   "%~dp0redist\python-3.11.9-amd64.exe" /quiet InstallAllUsers=0 PrependPath=0 Include_pip=1 Include_launcher=1 Include_test=0 Shortcuts=0

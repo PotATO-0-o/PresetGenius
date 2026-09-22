@@ -4,11 +4,11 @@ VST3-синтезатор с ИИ-генерацией пресетов по з�
 
 ## Установщик
 
-`installer\build.ps1` собирает `installer\output\PresetGenius-Setup-1.0.0.exe`.
-При установке можно выбрать **Standalone**, **VST3** или оба варианта. Сервер ИИ ставится всегда.
-Библиотеки ИИ (около 2 ГБ) скачиваются отдельным шагом, если отметить его в конце установки.
+Готовый файл: [installer/output/PresetGenius-Setup-1.0.0.exe](installer/output/PresetGenius-Setup-1.0.0.exe) (около 16 МБ).
+Пересобрать: `installer\build.ps1`.
 
-Готовый установщик публикуется в [GitHub Releases](https://github.com/PotATO-0-o/PresetGenius/releases), а не в истории git.
+При установке можно выбрать **Standalone**, **VST3** или оба варианта. Сервер ИИ ставится всегда.
+Python 3.11 и библиотеки ИИ (около 2 ГБ) скачиваются при установке, если отметить этот шаг. Нужен интернет.
 
 ## Запуск в Ableton
 
