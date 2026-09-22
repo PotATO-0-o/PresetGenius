@@ -25,6 +25,11 @@ cmake-build-*/
 build_*.log
 dist/
 
+# Installer build output
+installer/cache/
+installer/staging/
+installer/output/
+
 # IDE / OS
 .vscode/
 .idea/

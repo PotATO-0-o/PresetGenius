@@ -35,11 +35,17 @@ app.add_middleware(
 )
 
 
+# Версия, с которой собран плагин (JucePlugin_VersionString).
+# Vita пишет 99999.9.9, и плагин отказывается грузить «более новый» пресет.
+PLUGIN_SYNTH_VERSION = "1.0.6"
+
+
 def stamp_preset(preset, name: str, comments: str = ""):
     if isinstance(preset, str):
         preset = json.loads(preset)
     preset["preset_name"] = name
     preset["author"] = "PresetGenius"
+    preset["synth_version"] = PLUGIN_SYNTH_VERSION
     if comments:
         preset["comments"] = comments
     return preset
