@@ -45,12 +45,16 @@ if errorlevel 1 exit /b 1
 "%~dp0.venv\Scripts\pip.exe" install "setuptools<81" wheel numpy
 "%~dp0.venv\Scripts\pip.exe" install crepe --no-build-isolation
 "%~dp0.venv\Scripts\pip.exe" install -r "%~dp0requirements-ai.txt"
-if errorlevel 1 (
-  echo.
-  echo Установка библиотек не удалась. Проверьте интернет и запустите Setup-AI.cmd ещё раз.
-  exit /b 1
-)
+if errorlevel 1 goto ai_fail
+"%~dp0.venv\Scripts\pip.exe" install "setuptools<81"
+if errorlevel 1 goto ai_fail
+goto ai_ok
+:ai_fail
+echo.
+echo Установка библиотек не удалась. Проверьте интернет и запустите Setup-AI.cmd ещё раз.
+exit /b 1
 
+:ai_ok
 echo.
 echo Загрузка модели CLAP...
 "%~dp0.venv\Scripts\python.exe" -c "from transformers import ClapModel, ClapProcessor; ClapModel.from_pretrained('laion/clap-htsat-unfused'); ClapProcessor.from_pretrained('laion/clap-htsat-unfused')"

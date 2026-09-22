@@ -16,6 +16,9 @@ Copy-Item $Standalone (Join-Path $Stage "PresetGenius.exe") -Force
 Copy-Item $Vst3 (Join-Path $Stage "PresetGenius.vst3") -Force
 
 Copy-Item (Join-Path $InstallerDir "files\*") $Stage -Force
+$env:WAVETABLE_DIR = Join-Path $Stage "wavetables"
+& (Join-Path $Root ".venv\Scripts\python.exe") (Join-Path $InstallerDir "make_wavetables.py")
+if ($LASTEXITCODE -ne 0) { throw "Failed to build wavetables" }
 Copy-Item (Join-Path $Root "synth\vital\LICENSE") (Join-Path $Stage "licenses\GPL-3.0.txt") -Force
 Copy-Item (Join-Path $Root "ml\syntheon\LICENSE") (Join-Path $Stage "licenses\Syntheon-Apache-2.0.txt") -Force
 

@@ -60,6 +60,7 @@ Source: "{#Stage}\server\*"; DestDir: "{app}\server"; Flags: ignoreversion recur
 Source: "{#Stage}\ml\*"; DestDir: "{app}\ml"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Stage}\licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion
 Source: "{#Stage}\Check-Runtime.cmd"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Stage}\wavetables\*"; DestDir: "{userdocs}\Vial\Wavetables"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\PresetGenius"; Filename: "{app}\Start-PresetGenius.cmd"; WorkingDir: "{app}"; Comment: "{cm:ShortcutStandalone}"; Components: standalone; IconFilename: "{app}\PresetGenius.exe"
